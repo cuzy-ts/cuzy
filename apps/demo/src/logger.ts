@@ -49,4 +49,3 @@ export function closeLogger() {
 }
 
 log(`Logging to ${logFilePath}`);
-

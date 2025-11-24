@@ -169,4 +169,3 @@ export class CacheChannel extends Channel {
     return this.payload;
   }
 }
-

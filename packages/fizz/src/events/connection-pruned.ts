@@ -27,4 +27,3 @@ export class ConnectionPruned {
     EventDispatcher.emit("connection:pruned", event);
   }
 }
-

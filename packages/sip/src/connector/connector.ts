@@ -99,4 +99,3 @@ export abstract class Connector<TBroadcaster extends BroadcastDriver = "fizz"> {
     throw new Error("encryptedPrivateChannel method not implemented");
   }
 }
-

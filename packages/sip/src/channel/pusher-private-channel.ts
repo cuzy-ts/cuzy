@@ -9,4 +9,3 @@ export class PusherPrivateChannel extends PusherChannel {
     return this;
   }
 }
-

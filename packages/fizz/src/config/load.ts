@@ -376,4 +376,3 @@ export async function loadConfig(configPath?: string): Promise<FizzConfig> {
 
   return envConfig;
 }
-

@@ -322,4 +322,3 @@ export function createEventsBatchController(
   return (request, _connection, _appId, application, channels) =>
     controller.handle(request, _connection, _appId, application, channels);
 }
-

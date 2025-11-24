@@ -46,4 +46,3 @@ describe("EventFormatter", () => {
     expect(formatted).toBe("Users\\UserCreated");
   });
 });
-

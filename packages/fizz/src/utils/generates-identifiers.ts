@@ -17,4 +17,3 @@ export function generateId(): string {
   const second = Math.floor(Math.random() * 1_000_000_000) + 1;
   return `${first}.${second}`;
 }
-

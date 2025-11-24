@@ -102,4 +102,3 @@ describe("SocketIoChannel", () => {
     expect(l3).toHaveBeenCalled();
   });
 });
-

@@ -17,4 +17,3 @@ declare module "*.module.css" {
 }
 
 declare const Bun: typeof import("bun");
-

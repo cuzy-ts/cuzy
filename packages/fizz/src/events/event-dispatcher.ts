@@ -161,4 +161,3 @@ export const EventDispatcher = new EventDispatcherImpl();
 
 // Export type for testing/mocking
 export type { EventListener };
-

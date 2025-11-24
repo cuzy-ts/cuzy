@@ -263,4 +263,3 @@ export class EventsController extends Controller {
     return errors;
   }
 }
-

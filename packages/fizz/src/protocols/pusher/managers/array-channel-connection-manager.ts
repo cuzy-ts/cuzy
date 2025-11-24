@@ -240,4 +240,3 @@ export class ArrayChannelConnectionManager implements ChannelConnectionManager {
     this.connections.clear();
   }
 }
-

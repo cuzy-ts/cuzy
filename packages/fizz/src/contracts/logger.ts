@@ -98,4 +98,3 @@ export interface ILogger {
    */
   line(lines?: number): void;
 }
-

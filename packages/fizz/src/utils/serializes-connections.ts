@@ -189,4 +189,3 @@ export function connectionFromJson(
   const data = JSON.parse(json) as SerializedConnection;
   return deserializeConnection(data, applicationProvider);
 }
-

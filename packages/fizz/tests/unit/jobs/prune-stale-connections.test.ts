@@ -204,4 +204,3 @@ describe("PruneStaleConnections", () => {
     expect(errorData.message).toBe("Pong reply not received in time");
   });
 });
-

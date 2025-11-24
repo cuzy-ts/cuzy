@@ -362,4 +362,3 @@ describe("Presence Channel E2E Tests", () => {
     expect(events2).toContain("pusher_internal:subscription_succeeded");
   }, 15000);
 });
-

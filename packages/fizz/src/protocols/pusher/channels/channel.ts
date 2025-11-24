@@ -434,4 +434,3 @@ export class Channel {
     return { name: this._name };
   }
 }
-

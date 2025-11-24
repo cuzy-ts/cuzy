@@ -337,4 +337,3 @@ export class PresenceCacheChannel extends CacheChannel {
     }
   }
 }
-

@@ -176,4 +176,3 @@ export function getUserCount(channel: Channel): number {
 
   return uniqueUserIds.size;
 }
-

@@ -282,4 +282,3 @@ export abstract class Controller {
     throw new HttpException(statusCode, message);
   }
 }
-

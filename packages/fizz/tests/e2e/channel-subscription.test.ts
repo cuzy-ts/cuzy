@@ -226,4 +226,3 @@ describe("Channel Subscription E2E Tests", () => {
     // Unsubscribe doesn't send a response in Pusher protocol
   }, 10000);
 });
-

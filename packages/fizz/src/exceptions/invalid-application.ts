@@ -8,4 +8,3 @@ export class InvalidApplication extends Error {
     Object.setPrototypeOf(this, InvalidApplication.prototype);
   }
 }
-

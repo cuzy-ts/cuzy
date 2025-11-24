@@ -203,4 +203,3 @@ describe("PingInactiveConnections", () => {
     expect(pingedConnections).toContain("inactive-conn2");
   });
 });
-

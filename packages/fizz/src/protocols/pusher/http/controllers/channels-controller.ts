@@ -104,4 +104,3 @@ export class ChannelsController extends Controller {
     return formatted;
   }
 }
-

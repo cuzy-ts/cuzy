@@ -31,4 +31,3 @@ export class HealthCheckController extends Controller {
     return new Response({ health: "OK" });
   }
 }
-

@@ -109,4 +109,3 @@ describe("SocketIoConnector", () => {
     expect(connector.channels.test).toBeUndefined();
   });
 });
-

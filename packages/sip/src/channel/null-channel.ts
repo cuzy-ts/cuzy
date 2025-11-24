@@ -20,4 +20,3 @@ export class NullChannel extends Channel {
     return this;
   }
 }
-

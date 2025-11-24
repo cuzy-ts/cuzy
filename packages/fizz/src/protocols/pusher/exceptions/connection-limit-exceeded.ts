@@ -15,4 +15,3 @@ export class ConnectionLimitExceeded extends PusherException {
    */
   protected errorMessage = "Application is over connection quota";
 }
-

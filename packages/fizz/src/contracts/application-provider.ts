@@ -45,4 +45,3 @@ export interface IApplicationProvider {
    */
   find(key: string, value: unknown): Application;
 }
-

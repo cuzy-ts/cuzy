@@ -222,4 +222,3 @@ describe("Sip", () => {
     expect(() => client.registerInterceptors()).not.toThrow();
   });
 });
-

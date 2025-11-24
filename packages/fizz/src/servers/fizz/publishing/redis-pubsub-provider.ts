@@ -169,4 +169,3 @@ export class RedisPubSubProvider implements IPubSubProvider {
     return await this.publisher.publish(payload);
   }
 }
-

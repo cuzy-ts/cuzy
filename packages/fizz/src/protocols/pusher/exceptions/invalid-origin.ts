@@ -15,4 +15,3 @@ export class InvalidOrigin extends PusherException {
    */
   protected errorMessage = "Origin not allowed";
 }
-

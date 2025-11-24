@@ -57,4 +57,3 @@ export class SocketIoPresenceChannel
     return this;
   }
 }
-

@@ -68,4 +68,3 @@ export class StandardLogger implements ILogger {
     // No-op for standard logger
   }
 }
-

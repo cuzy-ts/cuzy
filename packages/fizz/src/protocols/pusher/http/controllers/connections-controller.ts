@@ -243,4 +243,3 @@ function getChannelManager(): ChannelManager {
 function getMetricsHandler(): MetricsHandler {
   return Factory.getMetricsHandler();
 }
-

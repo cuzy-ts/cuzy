@@ -156,4 +156,3 @@ export class SocketIoConnector extends Connector<"socket.io"> {
     this.socket.disconnect();
   }
 }
-

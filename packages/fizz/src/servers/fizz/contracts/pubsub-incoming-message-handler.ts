@@ -22,4 +22,3 @@ export interface IPubSubIncomingMessageHandler {
    */
   handle(payload: string): void;
 }
-

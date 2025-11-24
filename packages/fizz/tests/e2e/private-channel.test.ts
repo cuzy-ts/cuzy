@@ -271,4 +271,3 @@ describe("Private Channel E2E Tests", () => {
     expect(res.errorReceived).toBe(true);
   }, 10000);
 });
-

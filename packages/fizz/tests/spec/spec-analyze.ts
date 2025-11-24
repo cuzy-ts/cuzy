@@ -67,4 +67,3 @@ if (hasFailures) {
 }
 
 process.exit(hasFailures ? 1 : 0);
-

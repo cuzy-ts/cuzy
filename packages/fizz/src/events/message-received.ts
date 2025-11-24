@@ -30,4 +30,3 @@ export class MessageReceived {
     EventDispatcher.emit("message:received", event);
   }
 }
-

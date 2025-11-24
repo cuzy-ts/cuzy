@@ -176,4 +176,3 @@ export type WebSocketConnection = IWebSocketConnection;
 export type WebSocketConnectionFactory = (
   socket: WebSocket,
 ) => IWebSocketConnection;
-

@@ -87,4 +87,3 @@ export class RedisPublishClient extends RedisClient {
     this.processQueuedEvents();
   }
 }
-

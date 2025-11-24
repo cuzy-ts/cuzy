@@ -14,4 +14,3 @@ export function isConstructor(obj: unknown): obj is new (
 
   return true;
 }
-

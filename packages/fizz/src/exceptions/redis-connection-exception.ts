@@ -17,4 +17,3 @@ export class RedisConnectionException extends Error {
     );
   }
 }
-

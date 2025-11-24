@@ -137,4 +137,3 @@ export interface FizzConfig {
   /** Application configurations */
   apps: AppsConfig;
 }
-

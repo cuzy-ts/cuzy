@@ -8,4 +8,3 @@ export class InvalidOrigin extends Error {
     Object.setPrototypeOf(this, InvalidOrigin.prototype);
   }
 }
-

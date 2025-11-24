@@ -164,4 +164,3 @@ export const Certificate = {
   herdPath: certificateHerdPath,
   valetPath: certificateValetPath,
 };
-

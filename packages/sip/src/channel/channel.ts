@@ -44,4 +44,3 @@ export abstract class Channel {
 
   abstract error(callback: (...args: unknown[]) => unknown): this;
 }
-

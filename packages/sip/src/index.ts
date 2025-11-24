@@ -16,4 +16,3 @@ export type {
   SipOptionsWithDefaults,
 } from "./types";
 export { EventFormatter } from "./util/event-formatter";
-

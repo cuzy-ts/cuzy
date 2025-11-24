@@ -280,4 +280,3 @@ export class ChannelController {
     return crypto.createHash("md5").update(data).digest("hex");
   }
 }
-

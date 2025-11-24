@@ -41,4 +41,3 @@ export abstract class InteractsWithApplicationsBase
     return this;
   }
 }
-

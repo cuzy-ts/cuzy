@@ -262,4 +262,3 @@ export class Response {
     return statusTexts[this.statusCode] ?? "Unknown";
   }
 }
-

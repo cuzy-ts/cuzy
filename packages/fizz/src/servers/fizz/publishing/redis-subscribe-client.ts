@@ -55,4 +55,3 @@ export class RedisSubscribeClient extends RedisClient {
     }
   }
 }
-

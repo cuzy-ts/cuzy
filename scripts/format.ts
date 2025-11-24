@@ -11,4 +11,3 @@ if (process.env.CI && (await $`git status --porcelain`.text())) {
   await $`git commit -m "chore: format code"`;
   await $`git push --no-verify`;
 }
-

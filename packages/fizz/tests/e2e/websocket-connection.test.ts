@@ -197,4 +197,3 @@ describe("WebSocket Connection E2E Tests", () => {
     ws.close();
   });
 });
-

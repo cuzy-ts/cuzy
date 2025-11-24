@@ -282,4 +282,3 @@ export class Connection implements IWebSocketConnection {
     return this.maxMessageSize;
   }
 }
-

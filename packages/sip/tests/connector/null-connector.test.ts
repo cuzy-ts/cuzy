@@ -68,4 +68,3 @@ describe("NullConnector", () => {
     expect(() => connector.disconnect()).not.toThrow();
   });
 });
-

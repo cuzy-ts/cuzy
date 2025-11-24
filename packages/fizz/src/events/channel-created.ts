@@ -25,4 +25,3 @@ export class ChannelCreated {
     EventDispatcher.emit("channel:created", event);
   }
 }
-

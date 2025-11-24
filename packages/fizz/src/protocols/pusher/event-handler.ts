@@ -504,4 +504,3 @@ export class EventHandler {
     return JSON.stringify(payload);
   }
 }
-

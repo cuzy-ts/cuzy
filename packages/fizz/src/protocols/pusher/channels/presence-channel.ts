@@ -226,4 +226,3 @@ export class PresenceChannel extends PrivateChannel {
     return false;
   }
 }
-

@@ -327,4 +327,3 @@ export class RedisClient extends EventEmitter {
     return `${scheme}://${host}:${port}${query}`;
   }
 }
-

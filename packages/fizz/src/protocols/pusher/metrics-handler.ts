@@ -638,4 +638,3 @@ export class MetricsHandler {
     });
   }
 }
-

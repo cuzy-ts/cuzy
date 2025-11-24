@@ -78,4 +78,3 @@ describe("useSip hook", () => {
     expect(typeof result.current.leaveChannel).toBe("function");
   });
 });
-

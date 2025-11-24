@@ -51,4 +51,3 @@ describe("client helper", () => {
     expect(clientIsConfigured()).toBe(true);
   });
 });
-

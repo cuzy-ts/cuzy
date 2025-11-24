@@ -292,4 +292,3 @@ export abstract class Connection {
     return `${part1}.${part2}`;
   }
 }
-

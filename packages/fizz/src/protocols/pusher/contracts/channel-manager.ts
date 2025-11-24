@@ -219,4 +219,3 @@ export interface ChannelManager {
    */
   flush(): void;
 }
-

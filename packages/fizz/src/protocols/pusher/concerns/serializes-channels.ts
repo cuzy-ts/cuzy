@@ -127,4 +127,3 @@ export function restoreChannel<
   );
   return new channelClass(deserialized.name, deserialized.connections);
 }
-

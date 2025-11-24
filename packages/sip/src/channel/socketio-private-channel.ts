@@ -17,4 +17,3 @@ export class SocketIoPrivateChannel extends SocketIoChannel {
     return this;
   }
 }
-

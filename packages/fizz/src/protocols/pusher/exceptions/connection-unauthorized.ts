@@ -15,4 +15,3 @@ export class ConnectionUnauthorized extends PusherException {
    */
   protected errorMessage = "Connection is unauthorized";
 }
-

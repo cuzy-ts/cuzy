@@ -72,4 +72,3 @@ export const client = <T extends BroadcastDriver>(): Sip<T> =>
   getSipInstance<T>();
 
 export const clientIsConfigured = () => clientConfig !== null;
-

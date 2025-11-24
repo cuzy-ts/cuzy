@@ -38,4 +38,3 @@ export async function getAvailablePort(
     `Could not find an available port after ${maxAttempts} attempts starting from ${preferredPort}`,
   );
 }
-

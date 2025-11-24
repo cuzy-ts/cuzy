@@ -26,4 +26,3 @@ export class ChannelRemoved {
     EventDispatcher.emit("channel:removed", event);
   }
 }
-

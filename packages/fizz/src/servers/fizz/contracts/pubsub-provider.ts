@@ -65,4 +65,3 @@ export interface IPubSubProvider {
    */
   publish(payload: Record<string, unknown>): Promise<number>;
 }
-

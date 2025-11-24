@@ -94,4 +94,3 @@ export class PusherChannel extends Channel {
     return this;
   }
 }
-

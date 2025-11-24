@@ -76,4 +76,3 @@ describe("Health Check Controller", () => {
     expect(text).toBe('{"health":"OK"}');
   });
 });
-

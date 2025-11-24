@@ -162,4 +162,3 @@ export type PusherOptions<TBroadcastDriver extends BroadcastDriver> =
     key: string;
     Pusher?: typeof Pusher;
   } & PusherJsOptions;
-

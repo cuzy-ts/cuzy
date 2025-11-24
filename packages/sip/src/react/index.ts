@@ -17,4 +17,3 @@ export type {
   ModelName,
   ModelPayload,
 } from "./types";
-

@@ -15,4 +15,3 @@ export { CliLogger } from "./cli-logger";
 export { Log } from "./log";
 export { NullLogger } from "./null-logger";
 export { StandardLogger } from "./standard-logger";
-

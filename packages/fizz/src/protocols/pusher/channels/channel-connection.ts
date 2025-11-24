@@ -152,4 +152,3 @@ export class ChannelConnection {
     this._connection.disconnect();
   }
 }
-

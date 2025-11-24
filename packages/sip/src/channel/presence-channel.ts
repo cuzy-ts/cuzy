@@ -6,4 +6,3 @@ export interface PresenceChannel extends Channel {
   whisper(eventName: string, data: Record<string, unknown>): this;
   leaving(callback: (...args: unknown[]) => unknown): this;
 }
-

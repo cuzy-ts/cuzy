@@ -130,4 +130,3 @@ export class PusherConnector extends Connector {
     this.pusher.disconnect();
   }
 }
-

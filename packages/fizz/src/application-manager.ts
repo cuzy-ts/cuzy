@@ -97,4 +97,3 @@ export class ApplicationManager {
     return this.config.apps?.provider ?? "config";
   }
 }
-

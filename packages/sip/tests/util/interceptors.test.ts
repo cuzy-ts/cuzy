@@ -109,4 +109,3 @@ describe("Interceptors", () => {
     expect(event.detail.fetchOptions.headers["X-Socket-Id"]).toBe("123.456");
   });
 });
-

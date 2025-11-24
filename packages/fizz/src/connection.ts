@@ -70,4 +70,3 @@ export class Connection extends ConnectionContract {
     this.connection.close();
   }
 }
-

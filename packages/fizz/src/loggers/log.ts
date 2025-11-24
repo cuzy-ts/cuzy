@@ -103,4 +103,3 @@ export const Log = {
   message: logMessage,
   line: logLine,
 };
-

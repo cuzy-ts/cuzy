@@ -231,4 +231,3 @@ export class ClientEvent {
     return errors;
   }
 }
-

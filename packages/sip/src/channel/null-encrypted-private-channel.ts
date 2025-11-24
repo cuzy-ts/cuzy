@@ -5,4 +5,3 @@ export class NullEncryptedPrivateChannel extends NullChannel {
     return this;
   }
 }
-

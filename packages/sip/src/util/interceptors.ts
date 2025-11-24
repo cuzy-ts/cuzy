@@ -106,4 +106,3 @@ export function registerAllInterceptors(
   registerjQueryAjaxSetup(getSocketId);
   registerTurboRequestInterceptor(getSocketId);
 }
-

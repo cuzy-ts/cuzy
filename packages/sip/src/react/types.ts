@@ -66,4 +66,3 @@ type ModelEvent =
 export type ModelEvents<T extends string> =
   | `.${ModelName<T>}${ModelEvent}`
   | `${ModelName<T>}${ModelEvent}`;
-

@@ -187,4 +187,3 @@ export class RedisClientFactory {
     return client as unknown as RedisClient;
   }
 }
-

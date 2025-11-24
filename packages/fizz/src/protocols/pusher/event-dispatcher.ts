@@ -288,4 +288,3 @@ export function dispatch(
 
   dispatchSynchronously(app, payload, channelManager, connection);
 }
-
