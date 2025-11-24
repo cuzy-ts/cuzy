@@ -19,6 +19,10 @@ describe("Sip", () => {
     delete (globalThis as any).Pusher;
     // biome-ignore lint/suspicious/noExplicitAny: Cleanup
     delete (globalThis as any).io;
+    // biome-ignore lint/suspicious/noExplicitAny: Cleanup
+    delete (window as any).Pusher;
+    // biome-ignore lint/suspicious/noExplicitAny: Cleanup
+    delete (window as any).io;
   });
 
   test("it creates a simple instance", () => {
@@ -37,6 +41,8 @@ describe("Sip", () => {
       unsubscribe() {}
       disconnect() {}
     };
+    // biome-ignore lint/suspicious/noExplicitAny: Mock injection
+    (window as any).Pusher = (globalThis as any).Pusher;
 
     const client = new Sip({
       broadcaster: "fizz",
@@ -59,16 +65,21 @@ describe("Sip", () => {
   });
 
   test("it creates a socket.io connector instance", () => {
-    // Mock io
+    // Mock io with internal io manager mock
     const mockIo = () => ({
       on: () => {},
       off: () => {},
       connect: () => {},
       disconnect: () => {},
       emit: () => {},
+      io: {
+        on: () => {},
+      },
     });
     // biome-ignore lint/suspicious/noExplicitAny: Mock injection
     (globalThis as any).io = mockIo;
+    // biome-ignore lint/suspicious/noExplicitAny: Mock injection
+    (window as any).io = mockIo;
 
     const client = new Sip({
       broadcaster: "socket.io",
@@ -96,6 +107,8 @@ describe("Sip", () => {
       unsubscribe() {}
       disconnect() {}
     };
+    // biome-ignore lint/suspicious/noExplicitAny: Mock injection
+    (window as any).Pusher = (globalThis as any).Pusher;
 
     const client = new Sip<"fizz">({
       broadcaster: "fizz",
@@ -192,6 +205,8 @@ describe("Sip", () => {
     (globalThis as any).window = {
       axios: mockAxios,
     };
+    // biome-ignore lint/suspicious/noExplicitAny: Mock injection
+    (window as any).axios = mockAxios;
 
     // Mock Pusher for the connector
     const mockPusher = {
@@ -222,3 +237,4 @@ describe("Sip", () => {
     expect(() => client.registerInterceptors()).not.toThrow();
   });
 });
+
