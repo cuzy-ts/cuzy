@@ -1,4 +1,12 @@
 import { beforeEach, describe, expect, test } from "bun:test";
+import { Window } from "happy-dom";
+
+// Set up DOM environment for tests
+const window = new Window();
+// @ts-expect-error - setting up global DOM for tests
+global.window = window;
+// @ts-expect-error - setting up global DOM for tests
+global.document = window.document;
 
 describe("client helper", () => {
   beforeEach(() => {
@@ -51,3 +59,4 @@ describe("client helper", () => {
     expect(clientIsConfigured()).toBe(true);
   });
 });
+
