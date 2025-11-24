@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/fizz" },
+    { "path": "./packages/sip" },
+    { "path": "./apps/demo" }
+  ]
+}

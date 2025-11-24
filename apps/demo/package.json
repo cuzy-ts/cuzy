@@ -1,0 +1,25 @@
+{
+  "name": "bun-react-template",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot src/index.ts",
+    "test": "bun test",
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "dependencies": {
+    "@cuzy/sip": "workspace:*",
+    "bun-plugin-tailwind": "^0.1.2",
+    "pusher-js": "^8.4.0",
+    "react": "^19",
+    "react-dom": "^19",
+    "@cuzy/fizz": "workspace:*",
+    "tailwindcss": "^4.1.11"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/bun": "latest"
+  }
+}

@@ -1,0 +1,217 @@
+import fs from "node:fs/promises";
+import path from "node:path";
+import { createServer } from "@cuzy/fizz";
+import { build, serve } from "bun";
+import tailwind from "bun-plugin-tailwind";
+import config from "../fizz.config";
+import { closeLogger, error, log } from "./logger";
+import { getAvailablePort } from "./utils";
+
+// ============================================================================
+// Start Fizz WebSocket Server
+// ============================================================================
+// Detect available port for Fizz (default 8080)
+const configuredFizzPort = Number(config.servers?.fizz?.port ?? 8080);
+const availableFizzPort = await getAvailablePort(configuredFizzPort);
+
+if (config.servers?.fizz) {
+  config.servers.fizz.port = availableFizzPort;
+}
+
+// This demonstrates the createServer API - the main way to embed Fizz
+const { server: wsServer, shutdown } = await createServer({
+  config,
+  enableEventLogging: true,
+  enableJobs: true,
+  enableSignals: false,
+});
+
+log(
+  `🔌 Fizz WebSocket server running on ws://${wsServer.hostname}:${wsServer.port}`,
+);
+
+// ============================================================================
+// Build Frontend
+// ============================================================================
+const PROJECT_ROOT = import.meta.dir;
+const PUBLIC_DIR = path.resolve(PROJECT_ROOT, "../public");
+
+// Ensure public directory exists
+await fs.mkdir(PUBLIC_DIR, { recursive: true });
+
+log("📦 Building frontend assets...");
+const buildResult = await build({
+  entrypoints: [path.join(PROJECT_ROOT, "frontend.tsx")],
+  outdir: PUBLIC_DIR,
+  plugins: [tailwind],
+  minify: process.env.NODE_ENV === "production",
+  target: "browser",
+});
+
+if (!buildResult.success) {
+  error("❌ Build failed:");
+  for (const msg of buildResult.logs) {
+    error(msg);
+  }
+} else {
+  log("✅ Frontend built successfully.");
+}
+
+// Copy static assets
+const assets = ["github.svg"];
+for (const asset of assets) {
+  const src = path.join(PROJECT_ROOT, asset);
+  const dest = path.join(PUBLIC_DIR, asset);
+  if (await Bun.file(src).exists()) {
+    await Bun.write(dest, Bun.file(src));
+  }
+}
+
+// ============================================================================
+// Start Frontend Server
+// ============================================================================
+// Detect available port for Frontend (default 3000)
+const availableFrontendPort = await getAvailablePort(3000);
+
+const frontendServer = serve({
+  port: availableFrontendPort,
+  routes: {
+    // Required for private/presence channels - authenticates subscriptions
+    "/broadcasting/auth": {
+      async POST(req) {
+        let socketId: string | undefined;
+        let channelName: string | undefined;
+
+        const contentType = req.headers.get("content-type") || "";
+
+        if (contentType.includes("application/json")) {
+          const body = (await req.json()) as {
+            socket_id?: string;
+            channel_name?: string;
+          };
+          socketId = body.socket_id;
+          channelName = body.channel_name;
+        } else {
+          const formData = await req.formData();
+          socketId = formData.get("socket_id")?.toString();
+          channelName = formData.get("channel_name")?.toString();
+        }
+
+        if (!socketId || !channelName) {
+          return Response.json(
+            { error: "Missing socket_id or channel_name" },
+            { status: 400 },
+          );
+        }
+
+        const appKey = config.apps?.apps?.[0]?.key ?? "";
+        const appSecret = config.apps?.apps?.[0]?.secret ?? "";
+
+        // Build signature: socket_id:channel_name
+        const signatureString = `${socketId}:${channelName}`;
+        const signature = await crypto.subtle
+          .importKey(
+            "raw",
+            new TextEncoder().encode(appSecret),
+            { name: "HMAC", hash: "SHA-256" },
+            false,
+            ["sign"],
+          )
+          .then((key) =>
+            crypto.subtle.sign(
+              "HMAC",
+              key,
+              new TextEncoder().encode(signatureString),
+            ),
+          )
+          .then((sig) =>
+            Array.from(new Uint8Array(sig))
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join(""),
+          );
+
+        // Return auth token: app_key:signature
+        return Response.json({
+          auth: `${appKey}:${signature}`,
+        });
+      },
+    },
+
+    // Serve all other requests
+    "/*": async (req) => {
+      const url = new URL(req.url);
+      const pathname = url.pathname;
+
+      // Default to index.html
+      if (pathname === "/" || pathname === "/index.html") {
+        const htmlFile = Bun.file(path.join(PROJECT_ROOT, "index.html"));
+        let html = await htmlFile.text();
+
+        // Point to built JS
+        html = html.replace('src="./frontend.tsx"', 'src="/frontend.js"');
+
+        // Inject CSS link
+        html = html.replace(
+          "</head>",
+          '<link rel="stylesheet" href="/frontend.css">\n    </head>',
+        );
+
+        // Inject Config
+        const fizzHost = Bun.env.BUN_PUBLIC_FIZZ_HOST ?? "localhost";
+        const fizzPort = String(wsServer.port);
+        const fizzScheme = Bun.env.BUN_PUBLIC_FIZZ_SCHEME ?? "http";
+        const fizzAppKey = config.apps?.apps?.[0]?.key ?? "my-app-key";
+
+        const configScript = `
+          <script>
+            window.__FIZZ_CONFIG__ = {
+              host: ${JSON.stringify(fizzHost)},
+              port: ${JSON.stringify(fizzPort)},
+              scheme: ${JSON.stringify(fizzScheme)},
+              appKey: ${JSON.stringify(fizzAppKey)}
+            };
+          </script>`;
+
+        html = html.replace("</head>", `${configScript}\n    </head>`);
+        return new Response(html, {
+          headers: { "Content-Type": "text/html" },
+        });
+      }
+
+      // Try to serve static file from public dir
+      // Prevent directory traversal by checking if resolved path starts with PUBLIC_DIR
+      const safePath = path.normalize(
+        path.join(PUBLIC_DIR, pathname.replace(/^\//, "")),
+      );
+      if (!safePath.startsWith(PUBLIC_DIR)) {
+        return new Response("Forbidden", { status: 403 });
+      }
+
+      const file = Bun.file(safePath);
+      if (await file.exists()) {
+        return new Response(file);
+      }
+
+      return new Response("Not found", { status: 404 });
+    },
+  },
+
+  development: Bun.env.NODE_ENV !== "production" && {
+    console: true,
+  },
+});
+
+log(`🚀 Frontend server running at ${frontendServer.url}`);
+
+// Handle shutdown signals
+const handleShutdown = async (signal: string) => {
+  log(`\n${signal} received, shutting down gracefully...`);
+  frontendServer.stop(true);
+  await shutdown();
+  closeLogger();
+  process.exit(0);
+};
+
+process.on("SIGINT", () => handleShutdown("SIGINT"));
+process.on("SIGTERM", () => handleShutdown("SIGTERM"));
+

@@ -1,0 +1,14 @@
+
+node_modules/
+dist/
+.DS_Store
+*.log
+.env
+.env.local
+bun.lockb
+
+specs/logs/archive/
+notes/
+_source/
+apps/demo/public/
+

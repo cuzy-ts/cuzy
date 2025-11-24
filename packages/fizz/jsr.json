@@ -1,0 +1,8 @@
+{
+  "name": "@cuzy/fizz",
+  "version": "0.1.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./cli": "./src/cli.ts"
+  }
+}

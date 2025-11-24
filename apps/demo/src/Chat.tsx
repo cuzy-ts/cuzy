@@ -1,0 +1,316 @@
+import {
+  client,
+  clientIsConfigured,
+  configureSip,
+  useSip,
+} from "@cuzy/sip/react";
+import type Pusher from "pusher-js";
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
+type Message = {
+  text: string;
+  sender: string;
+  timestamp: string;
+};
+
+type ConnectionStatus = "idle" | "connecting" | "connected" | "disconnected";
+
+const CLIENT_EVENT = ".client-message";
+const CHANNELS = [
+  "chat",
+  "general",
+  "random",
+  "tech",
+  "gaming",
+  "music",
+  "announcements",
+] as const;
+
+export function Chat() {
+  const [messageInput, setMessageInput] = useState("");
+  const [username, setUsername] = useState("User");
+  const [currentChannel, setCurrentChannel] = useState<string>(CHANNELS[0]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [status, setStatus] = useState<ConnectionStatus>("idle");
+  const [error, setError] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Read config from server-injected script tag
+  const config = (
+    globalThis as {
+      __FIZZ_CONFIG__?: {
+        host: string;
+        port: string;
+        scheme: string;
+        appKey: string;
+      };
+    }
+  ).__FIZZ_CONFIG__ ?? {
+    host: "localhost",
+    port: "8080",
+    scheme: "http",
+    appKey: "my-app-key",
+  };
+
+  const fizzHost = config.host;
+  const fizzPort = Number.parseInt(config.port, 10) || 8080;
+  const fizzScheme = config.scheme;
+  const fizzAppKey = config.appKey;
+  const fizzUrl = `${fizzScheme === "https" ? "wss" : "ws"}://${fizzHost}:${fizzPort}`;
+
+  // Configure Sip once
+  if (!clientIsConfigured()) {
+    configureSip({
+      broadcaster: "fizz",
+      key: fizzAppKey,
+      wsHost: fizzHost,
+      wsPort: fizzPort,
+      wssPort: fizzPort,
+      forceTLS: fizzScheme === "https",
+      enabledTransports: ["ws", "wss"],
+      authEndpoint: "/broadcasting/auth",
+    });
+  }
+
+  // Handle incoming messages
+  const handleMessage = useCallback((payload: Message) => {
+    setMessages((prev) => [...prev, payload]);
+  }, []);
+
+  // Use @cuzy/sip hook for channel subscription
+  const { leave: leaveChannel } = useSip<Message, "fizz", "private">(
+    currentChannel,
+    CLIENT_EVENT,
+    handleMessage,
+    [currentChannel, handleMessage],
+    "private",
+  );
+
+  // Track connection status
+  useEffect(() => {
+    const instance = client<"fizz">();
+    const connection = (instance.connector.pusher as Pusher).connection;
+
+    const handleConnecting = () => setStatus("connecting");
+    const handleConnected = () => {
+      setStatus("connected");
+      setError("");
+    };
+    const handleDisconnected = () => setStatus("disconnected");
+    const handleError = (payload?: { error?: { message?: string } }) => {
+      const detail = payload?.error?.message;
+      const reason = detail ? detail : "Is the server running?";
+      setError(`Unable to connect to ${fizzHost}:${fizzPort}. ${reason}`);
+      setStatus("disconnected");
+    };
+
+    connection.bind("connecting", handleConnecting);
+    connection.bind("connected", handleConnected);
+    connection.bind("disconnected", handleDisconnected);
+    connection.bind("failed", handleError);
+    connection.bind("error", handleError);
+
+    return () => {
+      connection.unbind("connecting", handleConnecting);
+      connection.unbind("connected", handleConnected);
+      connection.unbind("disconnected", handleDisconnected);
+      connection.unbind("failed", handleError);
+      connection.unbind("error", handleError);
+    };
+  }, [fizzPort, fizzHost]);
+
+  // Auto-connect on mount
+  useEffect(() => {
+    const instance = client<"fizz">();
+    const pusher = instance.connector.pusher as Pusher;
+    pusher.connect();
+  }, []);
+
+  // Auto-scroll to latest message
+  useEffect(() => {
+    if (messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages.length]);
+
+  // Clear messages when channel changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: setMessages is stable but we need to run on currentChannel change
+  useEffect(() => {
+    setMessages([]);
+  }, [currentChannel]);
+
+  const connect = useCallback(() => {
+    const instance = client<"fizz">();
+    const pusher = instance.connector.pusher as Pusher;
+    setError("");
+    setStatus("connecting");
+    pusher.connect();
+  }, []);
+
+  const disconnect = useCallback(() => {
+    const instance = client<"fizz">();
+    instance.disconnect();
+    setStatus("idle");
+    setError("");
+  }, []);
+
+  const sendMessage = useCallback(
+    (payload: Message) => {
+      setMessages((prev) => [...prev, payload]);
+      const instance = client<"fizz">();
+      const pusher = instance.connector.pusher as Pusher;
+      // Remove leading dot for triggering event, as Pusher expects raw event name
+      // Sip .listen() adds namespace, so we add . to listen, but trigger raw name
+      // Actually, trigger needs to match what Sip listens for?
+      // If Sip listens for "App.Events.client-message" (default namespace + client-message)
+      // Then we must send "client-message".
+      // BUT if we used ".client-message" in useSip, Sip listens for "client-message" (no namespace).
+      // So we must send "client-message".
+      const eventName = CLIENT_EVENT.startsWith(".")
+        ? CLIENT_EVENT.substring(1)
+        : CLIENT_EVENT;
+      pusher.send_event(eventName, payload, `private-${currentChannel}`);
+    },
+    [currentChannel],
+  );
+
+  const handleSendMessage = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!messageInput.trim() || status !== "connected") return;
+
+    const payload: Message = {
+      text: messageInput,
+      sender: username,
+      timestamp: new Date().toISOString(),
+    };
+
+    sendMessage(payload);
+    setMessageInput("");
+  };
+
+  const handleChannelChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const value = event.currentTarget.value as (typeof CHANNELS)[number];
+    leaveChannel();
+    setCurrentChannel(value);
+  };
+
+  const emptyStateMessage = () => {
+    if (status !== "connected") return "Connecting to server";
+    if (messages.length === 0) return "No messages yet. Start chatting!";
+  };
+
+  const statusLabels: Record<ConnectionStatus, string> = {
+    idle: "Idle",
+    connecting: "Connecting",
+    connected: "Connected",
+    disconnected: "Disconnected",
+  };
+
+  return (
+    <div className="mt-8 mx-auto w-full max-w-2xl text-left flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <div className="text-sm font-mono text-[#f3d5a3]">
+            {statusLabels[status]} to {fizzUrl}
+          </div>
+          <button
+            type="button"
+            onClick={connect}
+            className="bg-[#fbf0df] text-[#1a1a1a] border-0 px-4 py-2 rounded-lg font-bold cursor-pointer"
+            disabled={status === "connected"}
+          >
+            Connect
+          </button>
+          <button
+            type="button"
+            onClick={disconnect}
+            className="bg-red-600 text-white border-0 px-4 py-2 rounded-lg font-bold cursor-pointer"
+            disabled={status !== "connected"}
+          >
+            Disconnect
+          </button>
+        </div>
+        {error && <div className="text-red-400 text-sm font-mono">{error}</div>}
+        <input
+          type="text"
+          value={username}
+          onChange={(event) => setUsername(event.target.value)}
+          placeholder="Your name"
+          className="flex-1 bg-[#1a1a1a] border-2 border-[#fbf0df] rounded-xl p-3 text-[#fbf0df] font-mono focus:border-[#f3d5a3] outline-none"
+        />
+      </div>
+
+      <div className="flex items-center gap-2 bg-[#1a1a1a] p-3 rounded-xl font-mono border-2 border-[#fbf0df] w-full">
+        <select
+          value={currentChannel}
+          onChange={handleChannelChange}
+          className="w-full flex-1 bg-[#242424] border-2 border-[#fbf0df]/40 text-[#fbf0df] font-mono text-base py-2 px-3 rounded-lg outline-none focus:border-[#f3d5a3] cursor-pointer"
+        >
+          {CHANNELS.map((name) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex flex-col gap-2 bg-[#1a1a1a] p-4 rounded-xl font-mono border-2 border-[#fbf0df] min-h-[300px] max-h-[500px] overflow-y-auto">
+        {messages.length === 0 ? (
+          <div className="text-[#fbf0df]/40 text-center py-8">
+            {emptyStateMessage()}
+          </div>
+        ) : (
+          messages.map((msg, index) => {
+            const timestamp = msg.timestamp
+              ? new Date(msg.timestamp).toLocaleTimeString()
+              : "";
+            return (
+              <div
+                key={`${msg.timestamp}-${index}`}
+                className="flex flex-col items-start gap-1 bg-[#242424] p-3 rounded-lg border border-[#fbf0df]/20"
+              >
+                <div className="text-[#fbf0df]">{msg.text}</div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-gray-400">
+                    {msg.sender}
+                  </span>
+                  <span className="text-xs text-gray-500">{timestamp}</span>
+                </div>
+              </div>
+            );
+          })
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      <form
+        onSubmit={handleSendMessage}
+        className="flex items-center gap-2 bg-[#1a1a1a] p-3 rounded-xl font-mono border-2 border-[#fbf0df] transition-colors duration-300 focus-within:border-[#f3d5a3] w-full"
+      >
+        <input
+          type="text"
+          value={messageInput}
+          onChange={(event) => setMessageInput(event.target.value)}
+          placeholder="Type a message..."
+          className="w-full flex-1 bg-transparent border-0 text-[#fbf0df] font-mono text-base py-1.5 px-2 outline-none focus:text-white placeholder-[#fbf0df]/40"
+          disabled={status !== "connected"}
+        />
+        <button
+          type="submit"
+          className="bg-[#fbf0df] text-[#1a1a1a] border-0 px-5 py-1.5 rounded-lg font-bold transition-all duration-100 hover:bg-[#f3d5a3] hover:-translate-y-px cursor-pointer whitespace-nowrap"
+          disabled={status !== "connected"}
+        >
+          Send
+        </button>
+      </form>
+    </div>
+  );
+}
+
