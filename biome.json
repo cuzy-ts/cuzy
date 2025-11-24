@@ -6,10 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": [
-      "**",
-      "!!**/dist"
-    ]
+    "includes": ["**"]
   },
   "formatter": {
     "enabled": true,
@@ -49,4 +46,3 @@
     }
   }
 }
-

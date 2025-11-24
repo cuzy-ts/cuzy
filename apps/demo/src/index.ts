@@ -34,15 +34,15 @@ log(
 // Build Frontend
 // ============================================================================
 const PROJECT_ROOT = import.meta.dir;
-const PUBLIC_DIR = path.resolve(PROJECT_ROOT, "../public");
+const DIST_DIR = path.resolve(PROJECT_ROOT, "../dist");
 
-// Ensure public directory exists
-await fs.mkdir(PUBLIC_DIR, { recursive: true });
+// Ensure dist directory exists
+await fs.mkdir(DIST_DIR, { recursive: true });
 
 log("📦 Building frontend assets...");
 const buildResult = await build({
   entrypoints: [path.join(PROJECT_ROOT, "frontend.tsx")],
-  outdir: PUBLIC_DIR,
+  outdir: DIST_DIR,
   plugins: [tailwind],
   minify: process.env.NODE_ENV === "production",
   target: "browser",
@@ -61,7 +61,7 @@ if (!buildResult.success) {
 const assets = ["github.svg"];
 for (const asset of assets) {
   const src = path.join(PROJECT_ROOT, asset);
-  const dest = path.join(PUBLIC_DIR, asset);
+  const dest = path.join(DIST_DIR, asset);
   if (await Bun.file(src).exists()) {
     await Bun.write(dest, Bun.file(src));
   }
@@ -179,11 +179,11 @@ const frontendServer = serve({
       }
 
       // Try to serve static file from public dir
-      // Prevent directory traversal by checking if resolved path starts with PUBLIC_DIR
+      // Prevent directory traversal by checking if resolved path starts with DIST_DIR
       const safePath = path.normalize(
-        path.join(PUBLIC_DIR, pathname.replace(/^\//, "")),
+        path.join(DIST_DIR, pathname.replace(/^\//, "")),
       );
-      if (!safePath.startsWith(PUBLIC_DIR)) {
+      if (!safePath.startsWith(DIST_DIR)) {
         return new Response("Forbidden", { status: 403 });
       }
 
@@ -214,3 +214,4 @@ const handleShutdown = async (signal: string) => {
 
 process.on("SIGINT", () => handleShutdown("SIGINT"));
 process.on("SIGTERM", () => handleShutdown("SIGTERM"));
+

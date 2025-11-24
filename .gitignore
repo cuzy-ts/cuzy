@@ -1,6 +1,8 @@
 
 node_modules/
 dist/
+_tmp/
+apps/demo/dist/
 .DS_Store
 *.log
 .env
