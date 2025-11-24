@@ -27,7 +27,7 @@ jobs:
       - name: Install root dependencies
         run: bun install
 
-      - name: Build revurb
+      - name: Build fizz
         run: bun run build
 
       - name: Start example app in background
