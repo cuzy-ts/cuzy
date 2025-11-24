@@ -68,9 +68,8 @@ describe("useSip hook", () => {
     // and might not be installed in the test environment correctly.
     // Since we are just checking the exports here, we can skip actual rendering for now
     // or we need to install @testing-library/react
-    
+
     // For now, just verifying the module exports are correct
     expect(useSipModule.useSip).toBeDefined();
   });
 });
-
